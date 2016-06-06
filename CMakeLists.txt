@@ -4,10 +4,28 @@
 # ----------------------------------------------------------------------------
 cmake_minimum_required(VERSION 2.8)
 
+# Find dependencies:
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/CMake/Modules)
+
 if(NOT TIFF_LIBRARY)
 	set(TIFF_LIBRARY "tiff")
 endif()
 project(${TIFF_LIBRARY})
+
+# fix CMake IntDir variable
+if(MSVC AND "${MSVC_VERSION}" STRGREATER "1500")
+    #set(COTIRE_INTDIR "$(Platform)/cotire")
+    set(CMAKE_CFG_INTDIR "$(Platform)/$(Configuration)")
+endif()
+
+# Define helper functions and macros.
+INCLUDE(CMake/Utils.cmake)
+INCLUDE(CMake/Cotire.cmake)
+
+# Init sesion with macros defined in Utils.cmake
+GetOperatingSystemArchitectureBitness(SYSTEM)
+ComposePackageLibSuffix()
+ConfigCompilerAndLinker()
 
 include(CheckFunctionExists)
 include(CheckIncludeFile)
@@ -97,23 +115,11 @@ else()
 	list(APPEND LIBRARY_FILES_C tif_unix.c)
 endif()
 
-# ocv_warnings_disable(CMAKE_C_FLAGS -Wno-unused-but-set-variable -Wmissing-prototypes -Wmissing-declarations -Wundef -Wunused -Wsign-compare
-                                   # -Wcast-align -Wshadow -Wno-maybe-uninitialized -Wno-pointer-to-int-cast -Wno-int-to-pointer-cast)
-# ocv_warnings_disable(CMAKE_C_FLAGS -Wunused-parameter) # clang
-# ocv_warnings_disable(CMAKE_CXX_FLAGS -Wmissing-declarations -Wunused-parameter)
-# ocv_warnings_disable(CMAKE_CXX_FLAGS /wd4018 /wd4100 /wd4127 /wd4311 /wd4701 /wd4706) # vs2005
-# ocv_warnings_disable(CMAKE_CXX_FLAGS /wd4244) # vs2008
-# ocv_warnings_disable(CMAKE_CXX_FLAGS /wd4267 /wd4305 /wd4306) # vs2008 Win64
-# ocv_warnings_disable(CMAKE_CXX_FLAGS /wd4703) # vs2012
-
-# ocv_warnings_disable(CMAKE_C_FLAGS /wd4267 /wd4244 /wd4018)
-
 if(UNIX AND (CMAKE_COMPILER_IS_GNUCXX OR CV_ICC))
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
 	set(BUILD_SHARED_LIBS ON)
 endif()
 
-add_library(${TIFF_LIBRARY} ${LIBRARY_FILES_C} ${LIBRARY_FILES_H})
+cxx_library_with_type(${TIFF_LIBRARY} "" "" "${cxx_default}" ${LIBRARY_FILES_C} ${LIBRARY_FILES_H})
 target_link_libraries(${TIFF_LIBRARY} ${ZLIB_LIBRARIES})
 
 set_target_properties(${TIFF_LIBRARY}
