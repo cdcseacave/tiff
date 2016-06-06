@@ -42,15 +42,15 @@ extra_dist(
   libtiffxx.map)
 
 set(tiff_HEADERS
+  tif_dir.h
   tiff.h
   tiffio.h
+  tiffiop.h
   tiffvers.h)
 
 set(tiff_noinst_HEADERS
   t4.h
-  tif_dir.h
   tif_predict.h
-  tiffiop.h
   uvcode.h)
 
 set(nodist_tiff_HEADERS
