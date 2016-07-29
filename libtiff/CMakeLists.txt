@@ -42,6 +42,7 @@ extra_dist(
   libtiffxx.map)
 
 set(tiff_HEADERS
+  ${CMAKE_CURRENT_BINARY_DIR}/tif_config.h
   tif_dir.h
   tiff.h
   tiffio.h
